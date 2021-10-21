@@ -376,9 +376,12 @@ class TestCharm(unittest.TestCase):
             config_values, cert=_mock_ssl.PEM_cert_to_DER_cert.return_value
         )
         self.harness.charm._on_get_legend_gitlab_params_action(event)
-        event.set_results.assert_called_once_with({"result": expected_creds})
+        event.set_results.assert_called_once_with(
+            {"result": {k.replace("_", "-"): v for k, v in expected_creds.items()}}
+        )
         _mock_ssl.get_server_certificate.assert_has_calls(
             [mock.call((config_values["gitlab-host"], config_values["gitlab-port"]))] * 2
         )
         _mock_ssl.PEM_cert_to_DER_cert.assert_has_calls(
-            [mock.call(_mock_ssl.get_server_certificate.return_value)])
+            [mock.call(_mock_ssl.get_server_certificate.return_value)]
+        )
