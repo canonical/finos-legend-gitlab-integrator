@@ -17,7 +17,7 @@ LIBAPI = 0
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 2
+LIBPATCH = 3
 
 REQUIRED_LEGEND_GITLAB_CREDENTIALS = [
     "client_id", "client_secret", "openid_discovery_url",
