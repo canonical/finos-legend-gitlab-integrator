@@ -121,8 +121,3 @@ require taking one of the following options:
 2. manually deleting the application and having the integrator create a new one on the next run
 3. reconfiguring the integrator with the `application-name` config option to create a new
    application with a different name. Note that this does NOT clean up/replace the old app.
-
-## OCI Images
-
-This charm has no actual workload container, but deploys a shell container
-based on the [Ubuntu Xenial](https://hub.docker.com/_/ubuntu) image.
