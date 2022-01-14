@@ -59,8 +59,8 @@ class TestCharm(unittest.TestCase):
             "gitlab_host": config["gitlab-host"],
             "gitlab_port": config["gitlab-port"],
             "gitlab_scheme": config["api-scheme"],
-            "client_id": config.get("bypass-client-id", client_id),
-            "client_secret": config.get("bypass-client-secret", client_secret),
+            "client_id": config.get("gitlab-client-id", client_id),
+            "client_secret": config.get("gitlab-client-secret", client_secret),
             "openid_discovery_url": (
                 charm.GITLAB_OPENID_DISCOVERY_URL_FORMAT
                 % {
@@ -81,7 +81,7 @@ class TestCharm(unittest.TestCase):
     @mock.patch(
         "charms.finos_legend_gitlab_integrator_k8s.v0.legend_gitlab.set_legend_gitlab_creds_in_relation_data"
     )
-    def test_charm_setup_gitlab_bypass(self, _set_legend_creds_mock, _mock_ssl):
+    def test_charm_setup_gitlab_by_id_and_secret(self, _set_legend_creds_mock, _mock_ssl):
         _mock_ssl.get_server_certificate.return_value = b"test_cert_pem"
         _mock_ssl.PEM_cert_to_DER_cert.return_value = b"test_cert_der"
 
@@ -97,21 +97,21 @@ class TestCharm(unittest.TestCase):
             "awaiting gitlab server configuration or relation",
         )
 
-        # Give it bypass creds for GitLab:
+        # Give it the direct client ID and secret creds for GitLab:
         config_values = {
             "gitlab-host": "gitlab_host",
             "api-scheme": "https",
             "gitlab-port": 1234,
-            "bypass-client-id": "test_client_id",
-            "bypass-client-secret": "test_client_secret",
+            "gitlab-client-id": "test_client_id",
+            "gitlab-client-secret": "test_client_secret",
         }
         self.harness.update_config(config_values)
         self.assertIsInstance(self.harness.charm.unit.status, model.ActiveStatus)
         self.assertEqual(
-            self.harness.charm._stored.gitlab_client_id, config_values["bypass-client-id"]
+            self.harness.charm._stored.gitlab_client_id, config_values["gitlab-client-id"]
         )
         self.assertEqual(
-            self.harness.charm._stored.gitlab_client_secret, config_values["bypass-client-secret"]
+            self.harness.charm._stored.gitlab_client_secret, config_values["gitlab-client-secret"]
         )
 
         # Check relations data:
@@ -360,16 +360,16 @@ class TestCharm(unittest.TestCase):
             "gitlab-host": "gitlab_host",
             "api-scheme": "https",
             "gitlab-port": 1234,
-            "bypass-client-id": "test_client_id",
-            "bypass-client-secret": "test_client_secret",
+            "gitlab-client-id": "test_client_id",
+            "gitlab-client-secret": "test_client_secret",
         }
         self.harness.update_config(config_values)
         self.assertIsInstance(self.harness.charm.unit.status, model.ActiveStatus)
         self.assertEqual(
-            self.harness.charm._stored.gitlab_client_id, config_values["bypass-client-id"]
+            self.harness.charm._stored.gitlab_client_id, config_values["gitlab-client-id"]
         )
         self.assertEqual(
-            self.harness.charm._stored.gitlab_client_secret, config_values["bypass-client-secret"]
+            self.harness.charm._stored.gitlab_client_secret, config_values["gitlab-client-secret"]
         )
 
         expected_creds = self._get_gitlab_creds_from_config(
