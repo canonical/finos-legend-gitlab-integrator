@@ -71,8 +71,8 @@ Prerequisites:
 # NOTE: one may optionally add the following, else it defaults to gitlab.com:
 # api-scheme=http gitlab-host=10.107.2.9 gitlab-port 443
 juju config finos-legend-gitlab-integrator-k8s \
-    bypass-client-id=<cliend id> \
-    bypass-client-secret=<client secret>
+    gitlab-client-id=<cliend id> \
+    gitlab-client-secret=<client secret>
 ```
 
 #### Fetching the redirect URIs:
@@ -117,7 +117,7 @@ if creating an application on the spot.
 In this sense, reusing GitLab applications upon redeploying the integrator will
 require taking one of the following options:
 1. *reusing an existing GitLab application* can be achieved by reconfiguring the
-   charm using the `bypass-client-id` and `bypass-client-secret` configuration
+   charm using the `gitlab-client-id` and `gitlab-client-secret` configuration
    options with the client ID/secret which can be obtained from
    the GitLab Web user interface as described in section .B above.
 2. manually deleting the application and having the integrator create a new one on the next run

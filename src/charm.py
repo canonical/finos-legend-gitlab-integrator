@@ -172,17 +172,17 @@ class LegendGitlabIntegratorCharm(charm.CharmBase):
     def _check_set_up_gitlab_application(self):
         """Sets up the GitLab application for the Legend deployment.
 
-        If a GitLab App bypass ID/secret was provided, this method will simply use those.
+        If a GitLab App ID/secret was provided, this method will simply use those.
         Else, it will attempt to create a new application on GitLab.
         Either way, the client ID/secret of the app is set within stored state as it is only
         made available by the API on app creation.
         """
-        bypass_client_id = self.model.config["bypass-client-id"]
-        bypass_client_secret = self.model.config["bypass-client-secret"]
-        if all([bypass_client_id, bypass_client_secret]):
+        gitlab_client_id = self.model.config["gitlab-client-id"]
+        gitlab_client_secret = self.model.config["gitlab-client-secret"]
+        if all([gitlab_client_id, gitlab_client_secret]):
             logger.info("Using pre-seeded Gitlab application ID/settings.")
-            self._stored.gitlab_client_id = bypass_client_id
-            self._stored.gitlab_client_secret = bypass_client_secret
+            self._stored.gitlab_client_id = gitlab_client_id
+            self._stored.gitlab_client_secret = gitlab_client_secret
             return None
 
         # Check GitLab client available:
