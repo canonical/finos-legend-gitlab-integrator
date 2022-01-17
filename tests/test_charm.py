@@ -77,7 +77,7 @@ class TestCharm(unittest.TestCase):
             creds["gitlab_host_cert_b64"] = base64.b64encode(cert).decode()
         return creds
 
-    @mock.patch("charm.ssl")
+    @mock.patch.object(charm.utils, "ssl")
     @mock.patch(
         "charms.finos_legend_gitlab_integrator_k8s.v0.legend_gitlab.set_legend_gitlab_creds_in_relation_data"
     )
@@ -123,7 +123,7 @@ class TestCharm(unittest.TestCase):
             relations_set_calls.append(mock.call({}, creds, validate_creds=False))
         _set_legend_creds_mock.assert_has_calls(relations_set_calls)
 
-    @mock.patch("charm.ssl")
+    @mock.patch.object(charm.utils, "ssl")
     @mock.patch("gitlab.Gitlab")
     @mock.patch(
         "charms.finos_legend_gitlab_integrator_k8s.v0.legend_gitlab.set_legend_gitlab_creds_in_relation_data"
@@ -335,7 +335,7 @@ class TestCharm(unittest.TestCase):
         self.harness.charm._on_get_redirect_uris_action(event)
         event.set_results.assert_called_once_with({"result": expected})
 
-    @mock.patch("charm.ssl")
+    @mock.patch.object(charm.utils, "ssl")
     @mock.patch(
         "charms.finos_legend_gitlab_integrator_k8s.v0.legend_gitlab.set_legend_gitlab_creds_in_relation_data"
     )
