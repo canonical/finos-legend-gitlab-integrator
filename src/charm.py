@@ -4,15 +4,15 @@
 
 """Module defining a Charm providing GitLab integration for FINOS Legend."""
 
-import base64
 import functools
 import logging
-import ssl
 import traceback
 
 import gitlab
 from charms.finos_legend_gitlab_integrator_k8s.v0 import legend_gitlab
 from ops import charm, framework, main, model
+
+import utils
 
 logger = logging.getLogger(__name__)
 
@@ -298,17 +298,13 @@ class LegendGitlabIntegratorCharm(charm.CharmBase):
                 "both a 'gitlab-host' and 'gitlab-port' config options are required"
             )
 
-        cert = None
         try:
-            cert = ssl.get_server_certificate((host, port))
+            return utils.get_gitlab_host_cert_b64(host, port)
         except Exception:
             return model.BlockedStatus(
                 "failed to retrieve SSL cert for GitLab host '%s:%d'. SSL is required "
                 "for the GitLab to be usable by the Legend components" % (host, port)
             )
-
-        # NOTE(aznashwan): we can also send the .PEM but there's no point in base64-ing it twice:
-        return base64.b64encode(ssl.PEM_cert_to_DER_cert(cert)).decode()
 
     def _get_gitlab_relation_data(self):
         if not all([self._stored.gitlab_client_id, self._stored.gitlab_client_secret]):
