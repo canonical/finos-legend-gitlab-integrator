@@ -244,6 +244,11 @@ class LegendGitlabIntegratorCharm(charm.CharmBase):
         except model.TooManyRelatedAppsError:
             logger.error("this operator does not support multiple %s relations" % (relation_name))
             return None
+        except model.ModelError as ex:
+            logger.error(
+                "Encountered an error while getting the '%s' redirect URIs: %s", relation_name, ex
+            )
+            return None
 
     def _get_legend_services_redirect_uris(self):
         """Returns a string containing the service URLs in the correct order.
