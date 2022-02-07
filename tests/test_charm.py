@@ -345,6 +345,7 @@ class TestCharm(unittest.TestCase):
         studio_id = legend_relations_id_map.pop(charm.RELATION_NAME_STUDIO)
         self.harness.remove_relation(studio_id)
 
+        # Reset the mock, so it won't have any of the previous calls recorded.
         mock_set_gitlab_creds.reset_mock()
         relation_data = json.dumps(["%s-redirect-uri" % relation_name])
         self._add_relation(
@@ -352,8 +353,7 @@ class TestCharm(unittest.TestCase):
             {"legend-gitlab-redirect-uris": relation_data},
         )
 
-        # TODO(claudiub): Update this once the issue is fixed.
-        mock_set_gitlab_creds.assert_not_called()
+        mock_set_gitlab_creds.assert_has_calls(relations_set_calls)
 
     def test_get_legend_redirect_uris_from_relation(self):
         self.harness.begin_with_initial_hooks()
