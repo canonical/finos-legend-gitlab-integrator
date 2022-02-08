@@ -28,6 +28,12 @@ class TestCharm(unittest.TestCase):
             self.harness.update_config({"api-scheme": "ssh"})
             self.harness.charm._get_gitlab_scheme()
 
+    def _patch(self, what, method):
+        patcher = mock.patch.object(what, method)
+        mocked = patcher.start()
+        self.addCleanup(patcher.stop)
+        return mocked
+
     def _add_relation(self, relation_name, relation_data):
         """Adds a relation with the given name and data."""
         relator_name = "%s-relator" % relation_name
@@ -304,6 +310,22 @@ class TestCharm(unittest.TestCase):
         for relation_name, relation_id in legend_relations_id_map.items():
             relations_set_calls.append(mock.call({}, creds, validate_creds=False))
         _set_legend_creds_mock.assert_has_calls(relations_set_calls)
+
+    def test_get_legend_redirect_uris_from_relation(self):
+        self.harness.begin_with_initial_hooks()
+
+        # Add the relations to the charm, and get the redirect URIs from it. It should return
+        # None, and not raise an exception.
+        self._add_relation(charm.RELATION_NAME_SDLC, {})
+        mock_get_redirect_uris = self._patch(
+            charm.legend_gitlab.LegendGitlabConsumer, "get_legend_redirect_uris"
+        )
+        mock_get_redirect_uris.side_effect = model.ModelError
+
+        uris = self.harness.charm._get_legend_redirect_uris_from_relation(charm.RELATION_NAME_SDLC)
+
+        self.assertIsNone(uris)
+        mock_get_redirect_uris.assert_called_once()
 
     def test_get_redirect_uris_action(self):
         self.harness.begin_with_initial_hooks()
