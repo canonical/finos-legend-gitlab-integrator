@@ -438,7 +438,7 @@ class LegendGitlabIntegratorCharm(charm.CharmBase):
         pass
 
     def _on_legend_studio_gitlab_relation_changed(self, event: charm.RelationChangedEvent) -> None:
-        self._update_charm_status
+        self._update_charm_status()
 
     def _on_legend_studio_gitlab_relation_broken(self, event: charm.RelationBrokenEvent) -> None:
         self._update_charm_status()

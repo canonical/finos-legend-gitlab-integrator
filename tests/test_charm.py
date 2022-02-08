@@ -38,7 +38,7 @@ class TestCharm(unittest.TestCase):
         """Adds a relation with the given name and data."""
         relator_name = "%s-relator" % relation_name
         rel_id = self.harness.add_relation(relation_name, relator_name)
-        self.harness.add_relation_unit(rel_id, relator_name)
+        self.harness.add_relation_unit(rel_id, "%s/0" % relator_name)
         self.harness.update_relation_data(rel_id, relator_name, relation_data)
         return rel_id
 
@@ -310,6 +310,50 @@ class TestCharm(unittest.TestCase):
         for relation_name, relation_id in legend_relations_id_map.items():
             relations_set_calls.append(mock.call({}, creds, validate_creds=False))
         _set_legend_creds_mock.assert_has_calls(relations_set_calls)
+
+    @mock.patch(
+        "charms.finos_legend_gitlab_integrator_k8s.v0.legend_gitlab.set_legend_gitlab_creds_in_relation_data"
+    )
+    @mock.patch.object(charm.LegendGitlabIntegratorCharm, "_get_gitlab_host_cert_b64")
+    def test_charm_legend_studio_rejoin(self, mock_get_host_cert, mock_set_gitlab_creds):
+        mock_get_host_cert.return_value = b"fake_cert"
+        self.harness.begin_with_initial_hooks()
+
+        # Add all the service relations:
+        legend_relations_id_map = self._add_legend_relations()
+
+        # Configure the gitlab integrator with a client id and secret:
+        config = {
+            "api-scheme": "https",
+            "gitlab-host": "gitlab_host",
+            "gitlab-port": 1234,
+            "gitlab-client-id": "client_id",
+            "gitlab-client-secret": "client_secret",
+        }
+        self.harness.update_config(config)
+        self.assertIsInstance(self.harness.charm.unit.status, model.ActiveStatus)
+
+        # Check relations data:
+        creds = self._get_gitlab_creds_from_config(config)
+        creds["gitlab_host_cert_b64"] = mock_get_host_cert.return_value
+        relations_set_calls = []
+        for relation_name, relation_id in legend_relations_id_map.items():
+            relations_set_calls.append(mock.call({}, creds, validate_creds=False))
+        mock_set_gitlab_creds.assert_has_calls(relations_set_calls)
+
+        # Remove the Legend Studio relation, and readd it.
+        studio_id = legend_relations_id_map.pop(charm.RELATION_NAME_STUDIO)
+        self.harness.remove_relation(studio_id)
+
+        # Reset the mock, so it won't have any of the previous calls recorded.
+        mock_set_gitlab_creds.reset_mock()
+        relation_data = json.dumps(["%s-redirect-uri" % relation_name])
+        self._add_relation(
+            charm.RELATION_NAME_STUDIO,
+            {"legend-gitlab-redirect-uris": relation_data},
+        )
+
+        mock_set_gitlab_creds.assert_has_calls(relations_set_calls)
 
     def test_get_legend_redirect_uris_from_relation(self):
         self.harness.begin_with_initial_hooks()
