@@ -124,6 +124,10 @@ require taking one of the following options:
 3. reconfiguring the integrator with the `application-name` config option to create a new
    application with a different name. Note that this does NOT clean up/replace the old app.
 
+## Charm releases
+
+This repository is configured to automatically build and publish a new Charm revision after a Pull Request merges. For more information, see [here](docs/CharmPublishing.md).
+
 ## Contributing
 
 Visit Legend [Contribution Guide](https://github.com/finos/legend/blob/master/CONTRIBUTING.md) to learn how to contribute to Legend.
