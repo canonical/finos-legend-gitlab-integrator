@@ -15,16 +15,12 @@ jobs:
         with:
           fetch-depth: 0
       - name: Check libraries
-        uses: canonical/charming-actions/check-libraries@1.0.0
+        uses: canonical/charming-actions/check-libraries@1.0.2
         with:
           credentials: "${{ secrets.CHARMHUB_TOKEN }}"
           github-token: "${{ secrets.GITHUB_TOKEN }}"
       - name: Upload charm to charmhub
-        # TODO: switch the action to a stable release once the following commits
-        # have been included in a release:
-        # https://github.com/canonical/charming-actions/pull/33
-        # https://github.com/canonical/charming-actions/pull/37
-        uses: canonical/charming-actions/upload-charm@main
+        uses: canonical/charming-actions/upload-charm@1.0.2
         with:
           credentials: "${{ secrets.CHARMHUB_TOKEN }}"
           github-token: "${{ secrets.GITHUB_TOKEN }}"
