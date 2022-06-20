@@ -5,7 +5,7 @@ After a Pull Request merged, the ``Publish Charm`` [Github action](../.github/wo
 ```bash
 charmcraft login --export=secrets-gitlab-int.auth --charm=finos-legend-gitlab-integrator-k8s \
       --permission=package-manage --permission=package-view-revisions \
-      --channel=edge --ttl=1576800
+      --channel=edge --ttl=15780000
 ```
 
 This token will have to be updated periodically since it has a certain time to live set.
