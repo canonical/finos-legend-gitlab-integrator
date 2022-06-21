@@ -9,3 +9,9 @@ charmcraft login --export=secrets-gitlab-int.auth --charm=finos-legend-gitlab-in
 ```
 
 This token will have to be updated periodically since it has a certain time to live set.
+
+By using the following `gh` command you can skip going through the repository settings to set the secret token:
+
+```bash
+gh -R finos/legend-juju-gitlab-integrator secret set CHARMHUB_TOKEN < secrets-gitlab-int.auth
+```
