@@ -360,7 +360,7 @@ class TestCharm(unittest.TestCase):
 
         # Add the relations to the charm, and get the redirect URIs from it. It should return
         # None, and not raise an exception.
-        self._add_relation(charm.RELATION_NAME_SDLC, {})
+        self._add_relation(charm.RELATION_NAME_SDLC, {"foo": "lish"})
         mock_get_redirect_uris = self._patch(
             charm.legend_gitlab.LegendGitlabConsumer, "get_legend_redirect_uris"
         )

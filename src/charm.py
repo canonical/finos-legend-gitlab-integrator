@@ -237,14 +237,18 @@ class LegendGitlabIntegratorCharm(charm.CharmBase):
         relation = None
         try:
             relation = self.model.get_relation(relation_name)
-            if not relation:
+            # NOTE(claudiub): If the relation is broken, accessing relation.data results in a
+            # RuntimeError. We should avoid creating the LegendHitlabConsumer in this case,
+            # otherwise, we can end up with 2 objects claiming the same object path on the
+            # mext call for this relation (e.g.: rejoin)
+            if not relation or not relation.data.get(relation.app):
                 return None
             gitlab_consumer = legend_gitlab.LegendGitlabConsumer(self, relation_name)
             return gitlab_consumer.get_legend_redirect_uris(relation.id)
         except model.TooManyRelatedAppsError:
             logger.error("this operator does not support multiple %s relations" % (relation_name))
             return None
-        except model.ModelError as ex:
+        except (model.ModelError, RuntimeError) as ex:
             logger.error(
                 "Encountered an error while getting the '%s' redirect URIs: %s", relation_name, ex
             )
