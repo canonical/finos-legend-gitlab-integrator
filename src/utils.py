@@ -5,6 +5,7 @@
 
 import base64
 import logging
+import socket
 import ssl
 
 import requests
@@ -45,9 +46,11 @@ HTTPAdapter.build_response = _new_build_response
 def get_gitlab_host_cert_b64(host, port):
     """Returns the server certificate from the given host and port."""
     try:
-        # NOTE(aznashwan): we can also send the .PEM but there's no point in base64-ing it twice:
-        cert = ssl.get_server_certificate((host, port))
-        return base64.b64encode(ssl.PEM_cert_to_DER_cert(cert)).decode()
+        context = ssl.create_default_context()
+        with socket.create_connection((host, port)) as sock:
+            with context.wrap_socket(sock, server_hostname=host) as sslsock:
+                der_cert = sslsock.getpeercert(True)
+                return base64.b64encode(der_cert).decode()
     except Exception as ex:
         logging.warning(
             "Encountered exception while getting the '%s:%s' SSL certificate. "

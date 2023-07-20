@@ -58,22 +58,29 @@ class TestUtils(unittest.TestCase):
             mock.sentinel.self, mock.sentinel.request, mock_resp
         )
 
-    @mock.patch("ssl.PEM_cert_to_DER_cert")
-    @mock.patch("ssl.get_server_certificate")
-    def test_get_gitlab_host_cert(self, mock_get_cert, mock_pem_to_der):
+    @mock.patch("ssl.create_default_context")
+    @mock.patch("socket.create_connection")
+    def test_get_gitlab_host_cert(self, mock_create_connection, mock_create_default_context):
         cert = b"some_cert"
-        mock_pem_to_der.return_value = cert
+        mock_context = mock_create_default_context.return_value
+        mock_sslsock = mock_context.wrap_socket.return_value.__enter__.return_value
+        mock_sslsock.getpeercert.return_value = cert
 
         result = utils.get_gitlab_host_cert_b64(mock.sentinel.host, mock.sentinel.port)
 
         self.assertEqual(base64.b64encode(cert).decode(), result)
-        mock_get_cert.assert_called_once_with((mock.sentinel.host, mock.sentinel.port))
-        mock_pem_to_der.assert_called_once_with(mock_get_cert.return_value)
+        mock_create_default_context.assert_called_once()
+        mock_create_connection.assert_called_once_with((mock.sentinel.host, mock.sentinel.port))
+        mock_sslsock.getpeercert.assert_called_once_with(True)
 
     @mock.patch("requests.get")
-    @mock.patch("ssl.get_server_certificate")
-    def test_get_gitlab_host_cert_gitlab(self, mock_get_cert, mock_get):
-        mock_get_cert.side_effect = Exception("Just as expected.")
+    @mock.patch("ssl.create_default_context")
+    @mock.patch("socket.create_connection")
+    def test_get_gitlab_host_cert_gitlab(
+        self, mock_create_connection, mock_create_default_context, mock_get
+    ):
+        mock_create_connection.side_effect = Exception("Just as expected.")
+        mock_create_default_context.side_effect = Exception("Just as expected.")
         cert = b"some_cert"
         mock_get.return_value.peer_cert = cert
         gitlab_name = "gitlab.com"
@@ -85,9 +92,13 @@ class TestUtils(unittest.TestCase):
         mock_get.assert_called_once_with(expected_url)
 
     @mock.patch("requests.get")
-    @mock.patch("ssl.get_server_certificate")
-    def test_get_gitlab_host_cert_gitlab_err(self, mock_get_cert, mock_get):
-        mock_get_cert.side_effect = Exception("Just as expected.")
+    @mock.patch("ssl.create_default_context")
+    @mock.patch("socket.create_connection")
+    def test_get_gitlab_host_cert_gitlab_err(
+        self, mock_create_connection, mock_create_default_context, mock_get
+    ):
+        mock_create_default_context.side_effect = Exception("Just as expected.")
+        mock_create_connection.side_effect = Exception("Just as expected.")
         mock_get.return_value.peer_cert = None
         gitlab_name = "gitlab.com"
 
