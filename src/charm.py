@@ -79,6 +79,7 @@ class LegendGitlabIntegratorCharm(charm.CharmBase):
         # General hooks:
         self.framework.observe(self.on.install, self._on_install)
         self.framework.observe(self.on.config_changed, self._on_config_changed)
+        self.framework.observe(self.on.update_status, self._on_update_status)
 
         # TODO(aznashwan): register eventual GitLab relation hooks:
         # self.framework.observe(
@@ -370,7 +371,7 @@ class LegendGitlabIntegratorCharm(charm.CharmBase):
     def _set_gitlab_data_in_all_relations(self, gitlab_relation_data, validate_creds=True):
         """Sets the provided GitLab data into all the relations with the Legend services.
 
-        Returns a `model.BlockedStatus` is something goes wrong, else None.
+        Returns a `model.BlockedStatus` if something goes wrong, else None.
         """
         for relation_name in ALL_LEGEND_RELATION_NAMES:
             blocked = self._set_legend_gitlab_data_in_relation(
@@ -410,6 +411,9 @@ class LegendGitlabIntegratorCharm(charm.CharmBase):
         self._update_charm_status()
 
     def _on_config_changed(self, _) -> None:
+        self._update_charm_status()
+
+    def _on_update_status(self, event: charm.UpdateStatusEvent):
         self._update_charm_status()
 
     def _on_gitlab_relation_joined(self, event: charm.RelationJoinedEvent):
